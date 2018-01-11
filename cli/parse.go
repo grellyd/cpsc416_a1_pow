@@ -44,7 +44,7 @@ func parsePort(port string) (int, error) {
 
 // validates and converts a string containing an IP
 func parseIP(ip string) (net.IP, error) {
-	addr := []byte {}
+	addr := []byte{}
 	for _, addrPart := range strings.Split(ip, ".") {
 		parsedValue, err := strconv.Atoi(addrPart)
 		if err != nil {

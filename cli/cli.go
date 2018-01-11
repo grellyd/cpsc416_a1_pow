@@ -1,8 +1,8 @@
 package cli
 
 import (
-	"fmt"
 	"a1/client"
+	"fmt"
 )
 
 func Run() (int, error) {

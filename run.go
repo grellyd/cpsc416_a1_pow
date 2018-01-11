@@ -2,10 +2,11 @@
 package main
 
 import (
-	"os"
-	"fmt"
 	"a1/cli"
+	"fmt"
+	"os"
 )
+
 func main() {
 	exitCode, err := cli.Run()
 	if err != nil {

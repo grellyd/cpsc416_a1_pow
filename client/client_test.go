@@ -9,7 +9,7 @@ func TestClient(t *testing.T) {
 	var tests = []struct {
 		output int
 	}{
-		{ client.SUCCESS },
+		{client.SUCCESS},
 	}
 	for _, test := range tests {
 		result := client.Execute()
