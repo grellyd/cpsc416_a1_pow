@@ -52,5 +52,8 @@ func parseIP(ip string) (net.IP, error) {
 		}
 		addr = append(addr, byte(parsedValue))
 	}
+	if len(addr) != 4 {
+		return nil, fmt.Errorf("ip parsing failed: %s as ip", ip)
+	}
 	return net.IPv4(addr[0], addr[1], addr[2], addr[3]), nil
 }

@@ -5,17 +5,16 @@ import (
 	"fmt"
 )
 
-func Run() (int, error) {
-	fmt.Println("Parsing command line args")
-	udpAddr, err := ParseUDPAddr("192.168.0.1:3000")
+func Run(args []string) (int, error) {
+	udpAddr, err := ParseUDPAddr(args[0])
 	if err != nil {
 		return 1, fmt.Errorf("cli failed: %v", err)
 	}
-	tcpAddr, err := ParseTCPAddr("192.168.0.1:9090")
+	tcpAddr, err := ParseTCPAddr(args[1])
 	if err != nil {
 		return 1, fmt.Errorf("cli failed: %v", err)
 	}
-	aServerAddr, err := ParseUDPAddr("127.0.0.1:3030")
+	aServerAddr, err := ParseUDPAddr(args[2])
 	if err != nil {
 		return 1, fmt.Errorf("cli failed: %v", err)
 	}
