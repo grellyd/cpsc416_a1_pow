@@ -1,4 +1,4 @@
-package cli
+package addrparse
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func ParseTCPAddr(addr string) (net.TCPAddr, error) {
+func TCPAddr(addr string) (net.TCPAddr, error) {
 	splitAddr := strings.SplitN(addr, ":", 2)
 	ip, err := parseIP(splitAddr[0])
 	if err != nil {
@@ -20,7 +20,7 @@ func ParseTCPAddr(addr string) (net.TCPAddr, error) {
 	return net.TCPAddr{IP: ip, Port: port, Zone: ""}, nil
 }
 
-func ParseUDPAddr(addr string) (net.UDPAddr, error) {
+func UDPAddr(addr string) (net.UDPAddr, error) {
 	splitAddr := strings.SplitN(addr, ":", 2)
 	ip, err := parseIP(splitAddr[0])
 	if err != nil {
