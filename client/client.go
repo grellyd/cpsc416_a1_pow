@@ -7,10 +7,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+    "bytes"
 )
 
 var SUCCESS = 0
 var FAILURE = 1
+var nullByte = "\x00"
 
 func Execute(localUDPAddr net.UDPAddr, localTCPAddr net.TCPAddr, aServerAddr net.UDPAddr) (int, error) {
 	fmt.Printf("udpAddr: %s,\ntcpAddr: %s,\naServerAddr: %s\n", localUDPAddr.String(), localTCPAddr.String(), aServerAddr.String())
@@ -54,10 +56,10 @@ func getNonce(localUDPAddr net.UDPAddr, aServerAddr net.UDPAddr, msg string) (no
 	if err != nil {
 		return NonceMessage{}, fmt.Errorf("opening a connection to %s for nonce failed: %v", aServerAddr.String(), err)
 	}
-	unMarshalErr := json.Unmarshal(response, &nonceMsg)
+	unMarshalErr := json.Unmarshal(bytes.Trim(response, nullByte), &nonceMsg)
 	if unMarshalErr != nil {
 		errMsg := ErrMessage{}
-		err := json.Unmarshal(response, &errMsg)
+		err := json.Unmarshal(bytes.Trim(response, nullByte), &errMsg)
 		if err != nil {
 			return NonceMessage{}, fmt.Errorf("unable to marshal error response %v to client.ErrMessage: %v", response, err)
 		} else {
@@ -77,10 +79,12 @@ func sendSecret(localUDPAddr net.UDPAddr, aServerAddr net.UDPAddr, secret string
 	if err != nil {
 		return FortuneInfoMessage{}, fmt.Errorf("opening a connection to %s for secret failed: %v", aServerAddr.String(), err)
 	}
-	unMarshalErr := json.Unmarshal(response, &fortuneInfo)
+    fmt.Println(string(response))
+	unMarshalErr := json.Unmarshal(bytes.Trim(response, nullByte), &fortuneInfo)
+    fmt.Println(fortuneInfo.FortuneServer)
 	if unMarshalErr != nil {
 		errMsg := ErrMessage{}
-		err := json.Unmarshal(response, &errMsg)
+		err := json.Unmarshal(bytes.Trim(response, nullByte), &errMsg)
 		if err != nil {
 			return FortuneInfoMessage{}, fmt.Errorf("unable to marshal error response %v to client.ErrMessage: %v", response, err)
 		} else {
@@ -93,10 +97,10 @@ func sendSecret(localUDPAddr net.UDPAddr, aServerAddr net.UDPAddr, secret string
 func requestFortune(localTCPAddr net.TCPAddr, fServerAddr net.TCPAddr, fortuneRequest FortuneReqMessage) (fortune FortuneMessage, err error) {
 	msg, err := json.Marshal(fortuneRequest)
 	response, err := connect.TCP(localTCPAddr, fServerAddr, msg)
-	unMarshalErr := json.Unmarshal(response, &fortune)
+	unMarshalErr := json.Unmarshal(bytes.Trim(response, nullByte), &fortune)
 	if unMarshalErr != nil {
 		errMsg := ErrMessage{}
-		err := json.Unmarshal(response, &errMsg)
+		err := json.Unmarshal(bytes.Trim(response, nullByte), &errMsg)
 		if err != nil {
 			return FortuneMessage{}, fmt.Errorf("unable to marshal error response %v to client.ErrMessage: %v", response, err)
 		} else {

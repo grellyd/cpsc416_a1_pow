@@ -7,7 +7,11 @@ import (
 )
 
 func UDP(localAddr net.UDPAddr, remoteAddr net.UDPAddr, msg []byte) ([]byte, error) {
-	conn, err := net.DialUDP("udp", &localAddr, &remoteAddr)
+    newLocalAddr, err := net.ResolveUDPAddr("udp", localAddr.String())
+	if err != nil {
+		return nil, fmt.Errorf("resolving addr %s as UDPs failed: %v", localAddr.String(), err)
+	}
+	conn, err := net.DialUDP("udp", newLocalAddr, &remoteAddr)
 	if err != nil {
 		return nil, fmt.Errorf("opening a connection to %s from %s as UDPs failed: %v", remoteAddr.String(), localAddr.String(), err)
 	}
