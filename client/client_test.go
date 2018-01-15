@@ -1,7 +1,7 @@
 package client_test
 
 import (
-	"a1/client"
+	"as1_c6y8/client"
 	"net"
 	"testing"
 )

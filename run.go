@@ -2,7 +2,7 @@
 package main
 
 import (
-	"a1/cli"
+	"as1_c6y8/cli"
 	"fmt"
 	"os"
 )
