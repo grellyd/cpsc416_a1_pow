@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func TCPAddr(addr string) (net.TCPAddr, error) {
+func TCP(addr string) (net.TCPAddr, error) {
 	splitAddr := strings.SplitN(addr, ":", 2)
 	ip, err := parseIP(splitAddr[0])
 	if err != nil {
@@ -20,7 +20,7 @@ func TCPAddr(addr string) (net.TCPAddr, error) {
 	return net.TCPAddr{IP: ip, Port: port, Zone: ""}, nil
 }
 
-func UDPAddr(addr string) (net.UDPAddr, error) {
+func UDP(addr string) (net.UDPAddr, error) {
 	splitAddr := strings.SplitN(addr, ":", 2)
 	ip, err := parseIP(splitAddr[0])
 	if err != nil {
