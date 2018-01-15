@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"net"
 	"a1/client/connect"
+	"a1/client/compute"
 	"a1/addrparse"
-	"crypto/md5"
-	"encoding/hex"
 	"encoding/json"
 )
 
@@ -18,23 +17,38 @@ func Execute(localUDPAddr net.UDPAddr, localTCPAddr net.TCPAddr, aServerAddr net
 	fmt.Printf("udpAddr: %s,\ntcpAddr: %s,\naServerAddr: %s\n", localUDPAddr.String(), localTCPAddr.String(), aServerAddr.String())
 	fmt.Println("This command has now run")
 
-	addrString := ""
-	fServerAddr, err := addrparse.TCP(addrString)
+	arbitraryStr := "arbitrary"
+	// fetch the nonce
+	nonceMsg, err := getNonce(localUDPAddr, aServerAddr, arbitraryStr)
 	if err != nil {
-		// TODO
+		return FAILURE, fmt.Errorf("fetching nonce from %s with %s failed: %v", aServerAddr.String(), arbitraryStr, err)
 	}
-	fortuneRequest := FortuneReqMessage{}
+	// compute the secret
+	secret, err := compute.ComputeSecret(nonceMsg.Nonce, nonceMsg.N)
+	if err != nil {
+		return FAILURE, fmt.Errorf("computing secret for %s with %d zeros failed: %v", nonceMsg.Nonce, nonceMsg.N, err)
+	}
+	// fetch the fserver info
+	fortuneInfo, err := sendSecret(localUDPAddr, aServerAddr, secret)
+	if err != nil {
+		return FAILURE, fmt.Errorf("sending secret to %s with %s failed: %v", aServerAddr.String(), secret, err)
+	}
+	fServerAddr, err := addrparse.TCP(fortuneInfo.FortuneServer)
+	if err != nil {
+		return FAILURE, fmt.Errorf("parsing fServerAddr at %s failed: %v", fServerAddr.String(), err)
+	}
+	fortuneRequest := FortuneReqMessage{ FortuneNonce: fortuneInfo.FortuneNonce }
 	fortune, err := requestFortune(localTCPAddr, fServerAddr, fortuneRequest)
 	if err != nil {
-		// TODO
+		return FAILURE, fmt.Errorf("requesting fortune at %v with %v failed: %v", fServerAddr, fortuneRequest, err)
 	}
 	fmt.Println(fortune.Fortune)
 	return SUCCESS, nil
 }
 
 
-func getNonce(localUDPAddr net.UDPAddr, aServerAddr net.UDPAddr) (nonce NonceMessage, err error) {
-	byteMessage, err := json.Marshal("arbitrary")
+func getNonce(localUDPAddr net.UDPAddr, aServerAddr net.UDPAddr, msg string) (nonceMsg NonceMessage, err error) {
+	byteMessage, err := json.Marshal(msg)
 	if err != nil {
 		return NonceMessage{}, fmt.Errorf("opening a connection to %s for nonce failed: %v", aServerAddr.String(), err)
 	}
@@ -42,7 +56,6 @@ func getNonce(localUDPAddr net.UDPAddr, aServerAddr net.UDPAddr) (nonce NonceMes
 	if err != nil {
 		return NonceMessage{}, fmt.Errorf("opening a connection to %s for nonce failed: %v", aServerAddr.String(), err)
 	}
-	nonceMsg := NonceMessage{}
 	unMarshalErr := json.Unmarshal(response, &nonceMsg)
 	if unMarshalErr != nil {
 		errMsg := ErrMessage{}
@@ -93,12 +106,4 @@ func requestFortune(localTCPAddr net.TCPAddr, fServerAddr net.TCPAddr, fortuneRe
 		}
 	}
 	return fortune, nil
-}
-
-// Returns the MD5 hash as a hex string for the (nonce + secret) value.
-func computeNonceSecretHash(nonce string, secret string) string {
-	h := md5.New()
-	h.Write([]byte(nonce + secret))
-	str := hex.EncodeToString(h.Sum(nil))
-	return str
 }
