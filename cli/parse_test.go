@@ -88,3 +88,41 @@ func TestParseUDPAddr(t *testing.T) {
 		}
 	}
 }
+
+func TestBadParseUDPAddr(t *testing.T) {
+	var tests = []struct {
+		input string
+		output net.UDPAddr
+		error_string string
+	}{
+		{
+			"192..0.1:5000", 
+			net.UDPAddr{},
+			"address parsing failed: 192..0.1:5000 as UDP: ip parsing failed: 192..0.1 as ip: strconv.Atoi: parsing \"\": invalid syntax",
+
+		},
+		{
+			"127.0.1:3030", 
+			net.UDPAddr{},
+			"address parsing failed: 127.0.1:3030 as UDP: ip parsing failed: 127.0.1 as ip",
+		},
+		{
+			"0:5555", 
+			net.UDPAddr{},
+			"address parsing failed: 0:5555 as UDP: ip parsing failed: 0 as ip",
+		},
+
+	}
+	for _, test := range tests {
+		result, err := ParseUDPAddr(test.input)
+		if result.String() != test.output.String() {
+			t.Errorf("Bad Exit: \"ParseUDPAddr(%s)\" instead of %v, test produced a result: %v ", test.input, test.output, result)
+		}
+		if err == nil {
+			t.Errorf("Bad Exit: \"ParseUDPAddr(%s)\" produced no err: %v", test.input, err)
+		}
+		if err.Error() != test.error_string {
+			t.Errorf("Bad Exit: \"ParseUDPAddr(%s)\" produced incorrect error, %s vs. %s", test.input, err, test.error_string)
+		}
+	}
+}
