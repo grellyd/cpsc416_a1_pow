@@ -1,14 +1,13 @@
 package client
 
 import (
+	"a1/addrparse"
+	"a1/client/compute"
+	"a1/client/connect"
+	"encoding/json"
 	"fmt"
 	"net"
-	"a1/client/connect"
-	"a1/client/compute"
-	"a1/addrparse"
-	"encoding/json"
 )
-
 
 var SUCCESS = 0
 var FAILURE = 1
@@ -37,7 +36,7 @@ func Execute(localUDPAddr net.UDPAddr, localTCPAddr net.TCPAddr, aServerAddr net
 	if err != nil {
 		return FAILURE, fmt.Errorf("parsing fServerAddr at %s failed: %v", fServerAddr.String(), err)
 	}
-	fortuneRequest := FortuneReqMessage{ FortuneNonce: fortuneInfo.FortuneNonce }
+	fortuneRequest := FortuneReqMessage{FortuneNonce: fortuneInfo.FortuneNonce}
 	fortune, err := requestFortune(localTCPAddr, fServerAddr, fortuneRequest)
 	if err != nil {
 		return FAILURE, fmt.Errorf("requesting fortune at %v with %v failed: %v", fServerAddr, fortuneRequest, err)
@@ -45,7 +44,6 @@ func Execute(localUDPAddr net.UDPAddr, localTCPAddr net.TCPAddr, aServerAddr net
 	fmt.Println(fortune.Fortune)
 	return SUCCESS, nil
 }
-
 
 func getNonce(localUDPAddr net.UDPAddr, aServerAddr net.UDPAddr, msg string) (nonceMsg NonceMessage, err error) {
 	byteMessage, err := json.Marshal(msg)
@@ -61,9 +59,9 @@ func getNonce(localUDPAddr net.UDPAddr, aServerAddr net.UDPAddr, msg string) (no
 		errMsg := ErrMessage{}
 		err := json.Unmarshal(response, &errMsg)
 		if err != nil {
-			return NonceMessage{}, fmt.Errorf("unable to marshal error response %v to client.ErrMessage: %v", response,  err)
+			return NonceMessage{}, fmt.Errorf("unable to marshal error response %v to client.ErrMessage: %v", response, err)
 		} else {
-			return NonceMessage{}, fmt.Errorf("server sent back error %s: %v", errMsg.Error,  err)
+			return NonceMessage{}, fmt.Errorf("server sent back error %s: %v", errMsg.Error, err)
 		}
 	}
 	return nonceMsg, nil
@@ -84,9 +82,9 @@ func sendSecret(localUDPAddr net.UDPAddr, aServerAddr net.UDPAddr, secret string
 		errMsg := ErrMessage{}
 		err := json.Unmarshal(response, &errMsg)
 		if err != nil {
-			return FortuneInfoMessage{}, fmt.Errorf("unable to marshal error response %v to client.ErrMessage: %v", response,  err)
+			return FortuneInfoMessage{}, fmt.Errorf("unable to marshal error response %v to client.ErrMessage: %v", response, err)
 		} else {
-			return FortuneInfoMessage{}, fmt.Errorf("server sent back error %s: %v", errMsg.Error,  err)
+			return FortuneInfoMessage{}, fmt.Errorf("server sent back error %s: %v", errMsg.Error, err)
 		}
 	}
 	return fortuneInfo, nil
@@ -100,9 +98,9 @@ func requestFortune(localTCPAddr net.TCPAddr, fServerAddr net.TCPAddr, fortuneRe
 		errMsg := ErrMessage{}
 		err := json.Unmarshal(response, &errMsg)
 		if err != nil {
-			return FortuneMessage{}, fmt.Errorf("unable to marshal error response %v to client.ErrMessage: %v", response,  err)
+			return FortuneMessage{}, fmt.Errorf("unable to marshal error response %v to client.ErrMessage: %v", response, err)
 		} else {
-			return FortuneMessage{}, fmt.Errorf("server sent back error %s: %v", errMsg.Error,  err)
+			return FortuneMessage{}, fmt.Errorf("server sent back error %s: %v", errMsg.Error, err)
 		}
 	}
 	return fortune, nil
