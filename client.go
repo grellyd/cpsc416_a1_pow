@@ -59,7 +59,7 @@ var nullByte = "\x00"
 var characters = []rune("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 func main() {
-	fmt.Printf("Starting at %s", time.Now())
+	fmt.Printf("Starting at %s\n", time.Now())
 	args := os.Args[1:]
 	udpAddr, err := parseUDPAddr(args[0])
 	if err != nil {
@@ -77,6 +77,7 @@ func main() {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 	}
+	fmt.Printf("Finished at %s\n", time.Now())
 	os.Exit(code)
 }
 
