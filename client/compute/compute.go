@@ -22,6 +22,7 @@ func Secret(nonce string, numZeros int64) (secret string, err error) {
 			break
 		}
 	}
+    fmt.Println(ComputeNonceSecretHash(nonce, secret))
 	return secret, nil
 }
 
