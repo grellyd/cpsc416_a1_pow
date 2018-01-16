@@ -60,25 +60,34 @@ var characters = []rune("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRS
 var debugPrint = false
 
 func main() {
-	fmt.Printf("Starting at %s\n", time.Now())
+	code := FAILURE
+	if debugPrint {
+		fmt.Printf("Starting at %s\n", time.Now())
+	}
 	args := os.Args[1:]
 	udpAddr, err := parseUDPAddr(args[0])
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(code)
 	}
 	tcpAddr, err := parseTCPAddr(args[1])
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(code)
 	}
 	aServerAddr, err := parseUDPAddr(args[2])
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(code)
 	}
-	code, err := Execute(udpAddr, tcpAddr, aServerAddr)
+	code, err = Execute(udpAddr, tcpAddr, aServerAddr)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(code)
 	}
-	fmt.Printf("Finished at %s\n", time.Now())
+	if debugPrint {
+		fmt.Printf("Finished at %s\n", time.Now())
+	}
 	os.Exit(code)
 }
 
