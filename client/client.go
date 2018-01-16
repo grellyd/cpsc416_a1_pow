@@ -92,6 +92,9 @@ func sendSecret(localUDPAddr net.UDPAddr, aServerAddr net.UDPAddr, secret string
 			return FortuneInfoMessage{}, fmt.Errorf("server sent back error %s: %v", errMsg.Error, err)
 		}
 	}
+	if fortuneInfo.FortuneServer == "" {
+		return FortuneInfoMessage{}, fmt.Errorf("Invalid secret %s: %v", secret, err)
+	}
 	return fortuneInfo, nil
 }
 
