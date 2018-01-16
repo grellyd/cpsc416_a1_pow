@@ -14,16 +14,18 @@ var characters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 func Secret(nonce string, numZeros int64) (secret string, err error) {
 	secret = ""
 	rand.Seed(time.Now().UnixNano())
-	for {
-		secret = generateRandomString(5)
-		fmt.Printf("Trying: %s\n", secret)
-		numPresentZeros := int64(strings.Count(ComputeNonceSecretHash(nonce, secret), "0")) 
-		if numPresentZeros == numZeros {
-			break
+	for i := 1; i < 1024; i++ {
+		for j := 0; j < 1024; j++ {
+			secret = generateRandomString(i)
+			fmt.Printf("Trying: %s\n", secret)
+			numPresentZeros := int64(strings.Count(ComputeNonceSecretHash(nonce, secret), "0")) 
+			if numPresentZeros == numZeros {
+                fmt.Println(ComputeNonceSecretHash(nonce, secret))
+				return secret, nil
+			}
 		}
 	}
-    fmt.Println(ComputeNonceSecretHash(nonce, secret))
-	return secret, nil
+	return "", fmt.Errorf("unable to find secret")
 }
 
 // Returns the MD5 hash as a hex string for the (nonce + secret) value.
