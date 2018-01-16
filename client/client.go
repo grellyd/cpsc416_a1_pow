@@ -4,10 +4,10 @@ import (
 	"as1_c6y8/addrparse"
 	"as1_c6y8/client/compute"
 	"as1_c6y8/client/connect"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net"
-    "bytes"
 )
 
 var SUCCESS = 0
@@ -28,7 +28,7 @@ func Execute(localUDPAddr net.UDPAddr, localTCPAddr net.TCPAddr, aServerAddr net
 	if err != nil {
 		return FAILURE, fmt.Errorf("computing secret for %s with %d zeros failed: %v", nonceMsg.Nonce, nonceMsg.N, err)
 	}
-    fmt.Printf("Found secret: \"%s\"", secret)
+	fmt.Printf("Found secret: \"%s\"", secret)
 	// fetch the fserver info
 	fortuneInfo, err := sendSecret(localUDPAddr, aServerAddr, secret)
 	if err != nil {
@@ -57,12 +57,12 @@ func getNonce(localUDPAddr net.UDPAddr, aServerAddr net.UDPAddr, msg string) (no
 		return NonceMessage{}, fmt.Errorf("opening a connection to %s for nonce failed: %v", aServerAddr.String(), err)
 	}
 	unMarshalErr := json.Unmarshal(bytes.Trim(response, nullByte), &nonceMsg)
-    fmt.Println(string(response))
+	fmt.Println(string(response))
 	if unMarshalErr != nil {
-        if len(bytes.Trim(response, nullByte)) == 0 {
-            return NonceMessage{}, fmt.Errorf("server sent back empty response: %v", err)
-        }
-        errMsg := ErrMessage{}
+		if len(bytes.Trim(response, nullByte)) == 0 {
+			return NonceMessage{}, fmt.Errorf("server sent back empty response: %v", err)
+		}
+		errMsg := ErrMessage{}
 		err := json.Unmarshal(bytes.Trim(response, nullByte), &errMsg)
 		if err != nil {
 			return NonceMessage{}, fmt.Errorf("unable to marshal error response %v to client.ErrMessage: %v", response, err)
@@ -76,7 +76,7 @@ func getNonce(localUDPAddr net.UDPAddr, aServerAddr net.UDPAddr, msg string) (no
 // TODO: Extract UDP Comm out with getNonce. Pass return type.
 // TODO: Extract out Unmarshall
 func sendSecret(localUDPAddr net.UDPAddr, aServerAddr net.UDPAddr, secret string) (fortuneInfo FortuneInfoMessage, err error) {
-	byteMessage, err := json.Marshal(secret)
+	byteMessage, err := json.Marshal(SecretMessage{Secret: secret})
 	if err != nil {
 		return FortuneInfoMessage{}, fmt.Errorf("opening a connection to %s for nonce failed: %v", aServerAddr.String(), err)
 	}
@@ -84,9 +84,9 @@ func sendSecret(localUDPAddr net.UDPAddr, aServerAddr net.UDPAddr, secret string
 	if err != nil {
 		return FortuneInfoMessage{}, fmt.Errorf("opening a connection to %s for secret failed: %v", aServerAddr.String(), err)
 	}
-    fmt.Println(string(response))
+	fmt.Println(string(response))
 	unMarshalErr := json.Unmarshal(bytes.Trim(response, nullByte), &fortuneInfo)
-    fmt.Println(fortuneInfo.FortuneServer)
+	fmt.Println(fortuneInfo.FortuneServer)
 	if unMarshalErr != nil {
 		errMsg := ErrMessage{}
 		err := json.Unmarshal(bytes.Trim(response, nullByte), &errMsg)

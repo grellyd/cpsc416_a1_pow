@@ -7,7 +7,7 @@ import (
 )
 
 func UDP(localAddr net.UDPAddr, remoteAddr net.UDPAddr, msg []byte) ([]byte, error) {
-    newLocalAddr, err := net.ResolveUDPAddr("udp", localAddr.String())
+	newLocalAddr, err := net.ResolveUDPAddr("udp", localAddr.String())
 	if err != nil {
 		return nil, fmt.Errorf("resolving addr %s as UDPs failed: %v", localAddr.String(), err)
 	}
