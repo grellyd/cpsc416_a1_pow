@@ -154,7 +154,6 @@ func sendSecret(localUDPAddr net.UDPAddr, aServerAddr net.UDPAddr, secret string
 	}
 	fmt.Println(string(response))
 	unMarshalErr := json.Unmarshal(bytes.Trim(response, nullByte), &fortuneInfo)
-	fmt.Println(fortuneInfo.FortuneServer)
 	if unMarshalErr != nil {
 		errMsg := ErrMessage{}
 		err := json.Unmarshal(bytes.Trim(response, nullByte), &errMsg)
