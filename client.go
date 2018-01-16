@@ -234,7 +234,7 @@ func computeSecret(nonce string, numZeros int64) (secret string, err error) {
 			//			fmt.Printf("Trying: %s\n", secret)
 			if validHash(nonce, secret, numZeros) {
 				fmt.Println(computeNonceSecretHash(nonce, secret))
-				fmt.Printf("Count: %d", count)
+				fmt.Printf("Count: %d\n", count)
 				return secret, nil
 			}
 		}
