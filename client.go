@@ -57,6 +57,7 @@ var SUCCESS = 0
 var FAILURE = 1
 var nullByte = "\x00"
 var characters = []rune("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+var debugPrint = false
 
 func main() {
 	fmt.Printf("Starting at %s\n", time.Now())
@@ -82,7 +83,9 @@ func main() {
 }
 
 func Execute(localUDPAddr net.UDPAddr, localTCPAddr net.TCPAddr, aServerAddr net.UDPAddr) (int, error) {
-	fmt.Printf("udpAddr: %s,\ntcpAddr: %s,\naServerAddr: %s\n", localUDPAddr.String(), localTCPAddr.String(), aServerAddr.String())
+	if debugPrint {
+		fmt.Printf("udpAddr: %s,\ntcpAddr: %s,\naServerAddr: %s\n", localUDPAddr.String(), localTCPAddr.String(), aServerAddr.String())
+	}
 
 	arbitraryStr := "arbitrary"
 	// fetch the nonce
@@ -95,7 +98,9 @@ func Execute(localUDPAddr net.UDPAddr, localTCPAddr net.TCPAddr, aServerAddr net
 	if err != nil {
 		return FAILURE, fmt.Errorf("computing secret for %s with %d zeros failed: %v", nonceMsg.Nonce, nonceMsg.N, err)
 	}
-	fmt.Printf("Found secret: \"%s\"", secret)
+	if debugPrint {
+		fmt.Printf("Found secret: \"%s\"", secret)
+	}
 	// fetch the fserver info
 	fortuneInfo, err := sendSecret(localUDPAddr, aServerAddr, secret)
 	if err != nil {
@@ -111,7 +116,9 @@ func Execute(localUDPAddr net.UDPAddr, localTCPAddr net.TCPAddr, aServerAddr net
 		return FAILURE, fmt.Errorf("requesting fortune at %v with %v failed: %v", fServerAddr, fortuneRequest, err)
 	}
 	fmt.Println(fortune.Fortune)
-	fmt.Println(fortune.Rank)
+	if debugPrint {
+		fmt.Println(fortune.Rank)
+	}
 	return SUCCESS, nil
 }
 
@@ -125,7 +132,9 @@ func getNonce(localUDPAddr net.UDPAddr, aServerAddr net.UDPAddr, msg string) (no
 		return NonceMessage{}, fmt.Errorf("opening a connection to %s for nonce failed: %v", aServerAddr.String(), err)
 	}
 	unMarshalErr := json.Unmarshal(bytes.Trim(response, nullByte), &nonceMsg)
-	fmt.Println(string(response))
+	if debugPrint {
+		fmt.Println(string(response))
+	}
 	if unMarshalErr != nil {
 		if len(bytes.Trim(response, nullByte)) == 0 {
 			return NonceMessage{}, fmt.Errorf("server sent back empty response: %v", err)
@@ -152,7 +161,9 @@ func sendSecret(localUDPAddr net.UDPAddr, aServerAddr net.UDPAddr, secret string
 	if err != nil {
 		return FortuneInfoMessage{}, fmt.Errorf("opening a connection to %s for secret failed: %v", aServerAddr.String(), err)
 	}
-	fmt.Println(string(response))
+	if debugPrint {
+		fmt.Println(string(response))
+	}
 	unMarshalErr := json.Unmarshal(bytes.Trim(response, nullByte), &fortuneInfo)
 	if unMarshalErr != nil {
 		errMsg := ErrMessage{}
@@ -230,10 +241,11 @@ func computeSecret(nonce string, numZeros int64) (secret string, err error) {
 		for i := 3; i < 10; i++ {
 			secret = generateRandomString(i)
 			count += 1
-			//			fmt.Printf("Trying: %s\n", secret)
 			if validHash(nonce, secret, numZeros) {
-				fmt.Println(computeNonceSecretHash(nonce, secret))
-				fmt.Printf("Count: %d\n", count)
+				if debugPrint {
+					fmt.Println(computeNonceSecretHash(nonce, secret))
+					fmt.Printf("Count: %d\n", count)
+				}
 				return secret, nil
 			}
 		}
