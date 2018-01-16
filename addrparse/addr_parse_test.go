@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestParseTCPAddr(t *testing.T) {
+func TestTCP(t *testing.T) {
 	var tests = []struct {
 		input  string
 		output net.TCPAddr
@@ -36,17 +36,17 @@ func TestParseTCPAddr(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		result, err := ParseTCPAddr(test.input)
+		result, err := TCP(test.input)
 		if err != nil {
-			t.Errorf("Bad Exit: \"ParseTCPAddr(%s)\" produced err: %v", test.input, err)
+			t.Errorf("Bad Exit: \"TCP(%s)\" produced err: %v", test.input, err)
 		}
 		if !result.IP.Equal(test.output.IP) || result.Port != test.output.Port || result.Zone != test.output.Zone {
-			t.Errorf("Bad Exit: \"ParseTCPAddr(%s)\" = %q not %q", test.input, result, test.output)
+			t.Errorf("Bad Exit: \"TCP(%s)\" = %q not %q", test.input, result, test.output)
 		}
 	}
 }
 
-func TestParseUDPAddr(t *testing.T) {
+func TestUDP(t *testing.T) {
 	var tests = []struct {
 		input  string
 		output net.UDPAddr
@@ -77,17 +77,17 @@ func TestParseUDPAddr(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		result, err := ParseUDPAddr(test.input)
+		result, err := UDP(test.input)
 		if err != nil {
-			t.Errorf("Bad Exit: \"ParseUDPAddr(%s)\" produced err: %v", test.input, err)
+			t.Errorf("Bad Exit: \"UDP(%s)\" produced err: %v", test.input, err)
 		}
 		if !result.IP.Equal(test.output.IP) || result.Port != test.output.Port || result.Zone != test.output.Zone {
-			t.Errorf("Bad Exit: \"ParseUDPAddr(%s)\" = %q not %q", test.input, result, test.output)
+			t.Errorf("Bad Exit: \"UDP(%s)\" = %q not %q", test.input, result, test.output)
 		}
 	}
 }
 
-func TestBadParseUDPAddr(t *testing.T) {
+func TestBadUDP(t *testing.T) {
 	var tests = []struct {
 		input        string
 		output       net.UDPAddr
@@ -110,15 +110,15 @@ func TestBadParseUDPAddr(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		result, err := ParseUDPAddr(test.input)
+		result, err := UDP(test.input)
 		if result.String() != test.output.String() {
-			t.Errorf("Bad Exit: \"ParseUDPAddr(%s)\" instead of %v, test produced a result: %v ", test.input, test.output, result)
+			t.Errorf("Bad Exit: \"UDP(%s)\" instead of %v, test produced a result: %v ", test.input, test.output, result)
 		}
 		if err == nil {
-			t.Errorf("Bad Exit: \"ParseUDPAddr(%s)\" produced no err: %v", test.input, err)
+			t.Errorf("Bad Exit: \"UDP(%s)\" produced no err: %v", test.input, err)
 		}
 		if err.Error() != test.error_string {
-			t.Errorf("Bad Exit: \"ParseUDPAddr(%s)\" produced incorrect error, %s vs. %s", test.input, err, test.error_string)
+			t.Errorf("Bad Exit: \"UDP(%s)\" produced incorrect error, %s vs. %s", test.input, err, test.error_string)
 		}
 	}
 }

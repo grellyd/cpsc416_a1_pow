@@ -25,7 +25,7 @@ func Execute(localUDPAddr net.UDPAddr, localTCPAddr net.TCPAddr, aServerAddr net
 		return FAILURE, fmt.Errorf("fetching nonce from %s with %s failed: %v", aServerAddr.String(), arbitraryStr, err)
 	}
 	// compute the secret
-	secret, err := compute.ComputeSecret(nonceMsg.Nonce, nonceMsg.N)
+	secret, err := compute.Secret(nonceMsg.Nonce, nonceMsg.N)
 	if err != nil {
 		return FAILURE, fmt.Errorf("computing secret for %s with %d zeros failed: %v", nonceMsg.Nonce, nonceMsg.N, err)
 	}
@@ -70,6 +70,7 @@ func getNonce(localUDPAddr net.UDPAddr, aServerAddr net.UDPAddr, msg string) (no
 }
 
 // TODO: Extract UDP Comm out with getNonce. Pass return type.
+// TODO: Extract out Unmarshall
 func sendSecret(localUDPAddr net.UDPAddr, aServerAddr net.UDPAddr, secret string) (fortuneInfo FortuneInfoMessage, err error) {
 	byteMessage, err := json.Marshal(secret)
 	if err != nil {
