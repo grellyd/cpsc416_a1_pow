@@ -15,7 +15,7 @@ func Secret(nonce string, numZeros int64) (secret string, err error) {
 	secret = ""
 	rand.Seed(time.Now().UnixNano())
 	for {
-		for i := 0; i < 1024; i++ {
+		for i := 0; i < 10; i++ {
 			secret = generateRandomString(i)
 			fmt.Printf("Trying: %s\n", secret)
 			if ValidHash(nonce, secret, numZeros) {

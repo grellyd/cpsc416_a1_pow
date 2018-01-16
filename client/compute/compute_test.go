@@ -21,7 +21,7 @@ func TestSecret(t *testing.T) {
 		},
    		{
    			"nonce-ahoy",
-   			7,
+   			6,
    		},
 // 		{
 // 			"nonce-hola",
