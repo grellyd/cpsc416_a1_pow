@@ -16,7 +16,6 @@ var nullByte = "\x00"
 
 func Execute(localUDPAddr net.UDPAddr, localTCPAddr net.TCPAddr, aServerAddr net.UDPAddr) (int, error) {
 	fmt.Printf("udpAddr: %s,\ntcpAddr: %s,\naServerAddr: %s\n", localUDPAddr.String(), localTCPAddr.String(), aServerAddr.String())
-	fmt.Println("This command has now run")
 
 	arbitraryStr := "arbitrary"
 	// fetch the nonce

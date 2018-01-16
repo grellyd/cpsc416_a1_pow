@@ -20,12 +20,12 @@ func TestSecret(t *testing.T) {
 			5,
 		},
    		{
-   			"nonce-ahoy",
+   			"Ioe948%*(F)4",
    			6,
    		},
 // 		{
-// 			"nonce-hola",
-// 			10,
+// 			"nonce-ahoy",
+// 			7,
 // 		},
 	}
 	for _, test := range tests {

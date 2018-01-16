@@ -9,13 +9,13 @@ import (
 	"time"
 )
 
-var characters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+var characters = []rune("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 func Secret(nonce string, numZeros int64) (secret string, err error) {
 	secret = ""
 	rand.Seed(time.Now().UnixNano())
 	for {
-		for i := 0; i < 10; i++ {
+		for i := 3; i < 10; i++ {
 			secret = generateRandomString(i)
 			fmt.Printf("Trying: %s\n", secret)
 			if ValidHash(nonce, secret, numZeros) {
