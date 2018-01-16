@@ -17,7 +17,7 @@ func Secret(nonce string, numZeros int64) (secret string, err error) {
 	for {
 		for i := 0; i < 10; i++ {
 			secret = generateRandomString(i)
-			fmt.Printf("Trying: %s\n", secret)
+//			fmt.Printf("Trying: %s\n", secret)
 			if ValidHash(nonce, secret, numZeros) {
 				fmt.Println(ComputeNonceSecretHash(nonce, secret))
 				return secret, nil

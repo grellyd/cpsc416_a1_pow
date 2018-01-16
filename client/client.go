@@ -29,6 +29,7 @@ func Execute(localUDPAddr net.UDPAddr, localTCPAddr net.TCPAddr, aServerAddr net
 	if err != nil {
 		return FAILURE, fmt.Errorf("computing secret for %s with %d zeros failed: %v", nonceMsg.Nonce, nonceMsg.N, err)
 	}
+    fmt.Printf("Found secret: \"%s\"", secret)
 	// fetch the fserver info
 	fortuneInfo, err := sendSecret(localUDPAddr, aServerAddr, secret)
 	if err != nil {
@@ -57,8 +58,12 @@ func getNonce(localUDPAddr net.UDPAddr, aServerAddr net.UDPAddr, msg string) (no
 		return NonceMessage{}, fmt.Errorf("opening a connection to %s for nonce failed: %v", aServerAddr.String(), err)
 	}
 	unMarshalErr := json.Unmarshal(bytes.Trim(response, nullByte), &nonceMsg)
+    fmt.Println(string(response))
 	if unMarshalErr != nil {
-		errMsg := ErrMessage{}
+        if len(bytes.Trim(response, nullByte)) == 0 {
+            return NonceMessage{}, fmt.Errorf("server sent back empty response: %v", err)
+        }
+        errMsg := ErrMessage{}
 		err := json.Unmarshal(bytes.Trim(response, nullByte), &errMsg)
 		if err != nil {
 			return NonceMessage{}, fmt.Errorf("unable to marshal error response %v to client.ErrMessage: %v", response, err)
