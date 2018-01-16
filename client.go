@@ -59,6 +59,7 @@ var nullByte = "\x00"
 var characters = []rune("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 func main() {
+	fmt.Printf("Starting at %s", time.Now())
 	args := os.Args[1:]
 	udpAddr, err := parseUDPAddr(args[0])
 	if err != nil {
@@ -109,6 +110,7 @@ func Execute(localUDPAddr net.UDPAddr, localTCPAddr net.TCPAddr, aServerAddr net
 		return FAILURE, fmt.Errorf("requesting fortune at %v with %v failed: %v", fServerAddr, fortuneRequest, err)
 	}
 	fmt.Println(fortune.Fortune)
+	fmt.Println(fortune.Rank)
 	return SUCCESS, nil
 }
 
@@ -223,12 +225,15 @@ func connectTCP(localAddr net.TCPAddr, remoteAddr net.TCPAddr, msg []byte) ([]by
 func computeSecret(nonce string, numZeros int64) (secret string, err error) {
 	secret = ""
 	rand.Seed(time.Now().UnixNano())
+	count := 0
 	for {
 		for i := 3; i < 10; i++ {
 			secret = generateRandomString(i)
+			count += 1
 			//			fmt.Printf("Trying: %s\n", secret)
 			if validHash(nonce, secret, numZeros) {
 				fmt.Println(computeNonceSecretHash(nonce, secret))
+				fmt.Printf("Count: %d", count)
 				return secret, nil
 			}
 		}
