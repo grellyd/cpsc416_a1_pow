@@ -1,0 +1,257 @@
+
+<!-- saved from url=(0072)https://www.cs.ubc.ca/~bestchai/teaching/cs416_2017w2/assign1/index.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<link rel="stylesheet" type="text/css" href="./Assignment 1_files/style.css"> 
+</head>
+<body>
+<title>Assignment 1</title>
+
+<table id="main">
+
+<tbody><tr><td style="padding-bottom: 20px">
+<h2><a href="https://www.cs.ubc.ca/~bestchai/teaching/cs416_2017w2/index.html">416</a> Distributed Systems: Assignment 1</h2>
+<h3>Due: Jan 15th at 11:59PM</h3>
+<p style="color:gray"><small>Winter 2018</small></p>
+</td></tr>
+
+<!-- -------------------------------------------------------------->
+
+<tr><td>
+
+<p>
+This assignment is intended to get you started with programming in the
+Go language. To solve this assignment you will need to install Go,
+figure out how to compile, run, and debug a Go program, and implement
+a UDP+TCP-based protocols described below for connecting to two
+services: a proof of work (PoW) authentication service, and a fortune
+service. The assignment also has an extra credit component: your
+solution will compete against other students' solutions in the total
+time to retrieve and print out the fortune. The top fastest 10
+solutions will receive an extra 2% added to their final course grade.
+</p>
+
+<h4>High-level protocol description</h4>
+<div class="hbarshort"></div>
+
+<p>
+There are three kinds of nodes in the system: a client (that you will
+implement), an authentication server (aserver) to verify a client's
+submitted PoW, and a fortune server (fserver) that returns a fortune
+string to the client. You will test and debug your solution against
+running aserver and fserver instances. However, you will not have
+access to their code. You are given initial starter code (below) which
+contains the expected message type declarations. Both aserver and
+fserver serve multiple clients simultaneously. Each client implements
+a sequential protocol control flow, interacting with the aserver
+first, and later with the fserver. The client communicates with
+aserver over UDP and with the fserver over TCP using JSON messages.
+</p>
+
+<p>
+The client is run knowing the UDP IP:port of the aserver. It follows
+the following steps:
+
+</p><ol>
+<li>The client sends a UDP message with arbitrary payload to the aserver.</li>
+
+<li>The client receives a <tt>NonceMessage</tt> reply containing
+an <tt>string</tt> <a href="https://en.wikipedia.org/wiki/Cryptographic_nonce">nonce</a>
+from the aserver and <tt>N</tt>, which determines the difficulty of
+the PoW procedure.</li>
+
+<li>The client finds an <tt>string</tt> value of <tt>secret</tt> such
+that the <a href="https://en.wikipedia.org/wiki/MD5">MD5</a> hash of
+the <tt>concat(nonce, secret)</tt> value has <tt>N</tt> zeroes at the <i>end</i> of
+the hash. The client then sends the <tt>secret</tt> value it found to
+the aserver as part of a <tt>SecretMessage</tt>.</li>
+
+<li>The aserver verifies the client's PoW and replies with
+a <tt>FortuneInfoMessage</tt> that contains information for contacting
+the fserver (its TCP IP:port and an <tt>int64</tt> fortune nonce to
+use when connecting to it).</li>
+
+<li>The client sends a <tt>FortuneReqMessage</tt> to fserver.</li>
+
+<li>The client receives a
+<tt>FortuneMessage</tt> from the fserver. This message contains a
+<tt>fortune</tt> string as well as the <tt>rank</tt> of this solution
+(relative to all other solutions that have correctly interacted with
+the aserver and fserver).</li>
+
+<li>The client must print out the received <tt>fortune</tt> string on
+a new newline-terminated line and then exit.</li>
+</ol>
+
+The communication steps in this protocol are illustrated in the
+following space-time diagram:<br><br>
+
+<img style="padding-left:20%" src="./Assignment 1_files/assign1-proto.jpg">
+<br>
+<p></p>
+
+
+<h4>Protocol corner-cases</h4>
+<div class="hbarshort"></div>
+<p>
+</p><ul>
+
+<!-- <li>The aserver and fserver expect the client to use the same UDP
+IP:port throughout the protocol. An <tt>ErrMessage</tt> will be
+generated if the client uses different addresses.</li> -->
+
+<li>The aserver will reply with an <tt>ErrMessage</tt> in case the PoW
+is invalid.</li>
+
+<li>The aserver will reply to all messages that it perceives as not
+being <tt>SecretMessage</tt> with a new <tt>NonceMessage</tt>.</li>
+
+<li>The fserver will reply with an <tt>ErrMessage</tt> in case it
+cannot unmarshal the message from the client.</li>
+
+<li>The fserver will reply with an <tt>ErrMessage</tt> in case an
+incorrect fortune nonce is supplied in
+the <tt>FortuneReqMessage</tt>.</li>
+
+<li>You can assume that all messages fit into 1024 bytes.</li>
+
+</ul>
+
+<p></p>
+
+
+<h4>Implementation requirements</h4>
+<div class="hbarshort"></div>
+<p>
+</p><ul>
+
+<li>The client code must be runnable on CS ugrad machines and be
+compatible with Go version 1.9.2.</li>
+
+<li>Your code does not need to check or handle ErrMessage replies from
+the aserver or fserver. However, you may find it useful to check for
+these replies during debugging.</li>
+
+<li>Your code may assume that UDP is reliable and not implement any
+retransmission.</li>
+
+<li>You must use the message types given out in the initial code.</li>
+
+<li>Your solution can only
+use <a href="https://golang.org/pkg/#stdlib">standard library</a> Go
+packages.</li>
+
+<li>Your solution code must be Gofmt'd
+using <a href="https://blog.golang.org/go-fmt-your-code">gofmt</a>.
+</li>
+
+</ul>
+<p></p>
+
+<h4>Solution spec</h4>
+<div class="hbarshort"></div>
+<p>
+Write a single go program called <tt>client.go</tt> that acts as a
+client in the protocol described above. Your program must implement
+the following command line usage:
+</p>
+<tt id="code">
+go run client.go [local UDP ip:port] [local TCP ip:port] [aserver UDP ip:port]
+</tt>
+<p>
+
+  </p><ul>
+
+    <li>[local UDP ip:port] : local UDP address that the client uses
+    to connect to the aserver (i.e., the external
+    IP of the machine the client is running on)</li>
+
+    <li>[local TCP ip:port] : local TCP address that the client uses
+    to connect to the fserver</li>
+
+    <li>[aserver UDP ip:port] : the UDP address on which the aserver
+    receives new client connections </li>
+
+  </ul>
+<p></p>
+
+<h4>Starter code and testing servers</h4>
+<div class="hbarshort"></div>
+<p>
+Download the <a href="https://www.cs.ubc.ca/~bestchai/teaching/cs416_2017w2/assign1/client.go">starter code</a>. The aserver is
+running at IP:port <tt>198.162.33.54:5555</tt>. The fserver is also
+running.
+</p>
+
+<h4>Rough grading scheme</h4>
+<div class="hbarshort"></div>
+
+<p>
+</p><ul>
+
+  <li>10% : Client properly initiates contact with the aserver</li>
+  <li>40% : Client computes a valid secret and communicates it to the aserver</li>
+  <li>25% : Client properly communicates to the fserver and provides the right fnonce</li>
+  <li>25% : Client prints out the right fortune message</li>
+
+</ul>
+<p></p>
+
+<h4>Extra credit</h4>
+<div class="hbarshort"></div>
+
+<p>
+The rank returned by the fserver gives you an idea of how fast your
+solution is relative to other students in the course (who have tested
+their solutions). In our extra credit testing we will use the same
+nonce for all student solutions, and all solutions with a rank &lt;= 10
+will receive the extra credit of 2% added to their final course grade.
+</p>
+
+<br><br>
+
+<p>
+Make sure to follow the
+course <a href="https://www.cs.ubc.ca/~bestchai/teaching/cs416_2017w2/index.html#honesty">collaboration policy</a> and refer
+to the <a href="https://www.cs.ubc.ca/~bestchai/teaching/cs416_2017w2/index.html#assignments">assignments</a> instructions
+that detail how to submit your solution.
+</p>
+
+</td></tr>
+
+<!-- -------------------------------------------------------------->
+
+<tr><td style="padding:0px">
+<br><br><br>
+<div id="footer">
+Last updated: January 21, 2018
+</div>
+<!--
+Local Variables:
+time-stamp-start: "^Last updated: "
+time-stamp-end: "\\.?$"
+time-stamp-format: "%:b %:d, %:y"
+time-stamp-line-limit: -50
+End:
+-->
+</td></tr>
+
+</tbody></table>
+
+<script type="text/javascript" async="" src="./Assignment 1_files/ga.js"></script><script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-793279-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+
+
+
+</body></html>
