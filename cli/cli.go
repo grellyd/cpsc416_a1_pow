@@ -1,8 +1,8 @@
 package cli
 
 import (
-	"as1_c6y8/addrparse"
-	"as1_c6y8/client"
+	"addrparse"
+	"client"
 	"fmt"
 )
 
